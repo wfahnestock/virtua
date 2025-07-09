@@ -72,7 +72,7 @@ fun MainScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f) // Take remaining height in the column
+                        .weight(1f)
                 ) {
                     LazyColumn(
                         modifier = Modifier
@@ -129,7 +129,7 @@ fun MainScreen(
              */
             Column(
                 modifier = Modifier
-                    .weight(1f - splitRatio) // Take 50% of available width
+                    .weight(1f - splitRatio)
                     .padding(start = 4.dp)
             ) {
                 Text(
@@ -148,8 +148,7 @@ fun MainScreen(
 @Composable
 private fun ServerListItem(
     name: String,
-    modifier: Modifier,
-    onItemSelected: () -> Unit = { /* No-op */ }
+    modifier: Modifier
 ) {
 
 
