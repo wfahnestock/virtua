@@ -35,6 +35,7 @@ kotlin {
             implementation(libs.ktor.content.negotiation)
             implementation(libs.ktor.serialization.json)
             implementation(libs.ktor.client.engine)
+            implementation(libs.compose.data.table)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

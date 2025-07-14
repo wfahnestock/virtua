@@ -21,7 +21,7 @@ fun main() = application {
 
     Window(
         onCloseRequest = ::exitApplication,
-        title = "RDPClient",
+        title = "Access411 RDP Client",
         state = windowState
     ) {
         App()
