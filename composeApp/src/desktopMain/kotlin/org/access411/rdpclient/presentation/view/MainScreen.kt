@@ -1,5 +1,7 @@
 package org.access411.rdpclient.presentation.view
 
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuDataProvider
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -49,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
@@ -159,21 +162,23 @@ fun MainScreen(
 
                             val sortedServers = remember(servers, sortColumnIndex, sortAscending) {
                                 when (sortColumnIndex) {
-                                    0 -> {
+                                    // We ignore column 0 because that column is effectively empty,
+                                    // only used for the drag indicator for each item.
+                                    1 -> { // Name
                                         if (sortAscending) {
                                             servers.sortedBy { it.hostName }
                                         } else {
                                             servers.sortedByDescending { it.hostName }
                                         }
                                     }
-                                    1 -> {
+                                    2 -> {
                                         if (sortAscending) {
                                             servers.sortedBy { it.description }
                                         } else {
                                             servers.sortedByDescending { it.description }
                                         }
                                     }
-                                    2 -> {
+                                    3 -> {
                                         if (sortAscending) {
                                             servers.sortedBy { it.ipAddress }
                                         } else {

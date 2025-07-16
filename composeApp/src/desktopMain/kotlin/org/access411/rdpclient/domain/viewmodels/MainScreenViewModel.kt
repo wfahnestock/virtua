@@ -117,6 +117,14 @@ class MainScreenViewModel : ViewModel() {
         }
     }
 
+    fun saveDescription() {
+
+    }
+
+    fun saveUrl() {
+
+    }
+
     private fun createFolderFilters(folderNames: List<String>): Map<String, String> {
         return folderNames.mapIndexed { index, name ->
             "filter.folders.${index + 1}" to name
