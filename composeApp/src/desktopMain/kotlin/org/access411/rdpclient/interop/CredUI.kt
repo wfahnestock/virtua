@@ -49,7 +49,7 @@ interface CredUI : Library {
         creditUR: CredentialUIInfo.ByReference,
         authError: Int,
         authPackage: IntByReference,
-        inAuthBuffer: Pointer,
+        inAuthBuffer: Pointer?,
         inAuthBufferSize: Int,
         refOutAuthBuffer: PointerByReference,
         refOutAuthBufferSize: WinDef.UINTByReference,
@@ -120,6 +120,70 @@ interface CredUI : Library {
                 "TargetAlias",
                 "UserName"
             )
+        }
+    }
+
+    object CredentialHelper {
+        fun promptForCredentials(caption: String, message: String): NetworkCredential? {
+            val credUI = INSTANCE
+
+            // Setup the UI info
+            val uiInfo = CredentialUIInfo.ByReference()
+            uiInfo.pszCaptionText = WString(caption)
+            uiInfo.pszMessageText = WString(message)
+            uiInfo.cbSize = uiInfo.size()
+
+            // Output parameters
+            val authPackage = IntByReference()
+            val outCredBuffer = PointerByReference()
+            val outCredSize = WinDef.UINTByReference()
+            val save = WinDef.BOOLByReference()
+
+            // Show credential dialog
+            val result = credUI.CredUIPromptForWindowsCredentials(
+                uiInfo, 0, authPackage, null, 0,
+                outCredBuffer, outCredSize, save, 0
+            )
+
+            if (result != 0) {
+                return null // User canceled or error
+            }
+
+            // Unpack the authentication buffer
+            val maxUsername = 100
+            val maxDomain = 100
+            val maxPassword = 100
+
+            val usernameBuffer = CharArray(maxUsername)
+            val domainBuffer = CharArray(maxDomain)
+            val passwordBuffer = CharArray(maxPassword)
+
+            val usernameSize = IntByReference(maxUsername)
+            val domainSize = IntByReference(maxDomain)
+            val passwordSize = IntByReference(maxPassword)
+
+            val success = credUI.CredUnPackAuthenticationBuffer(
+                0,
+                outCredBuffer.value,
+                outCredSize.value.toByte().toUInt(),
+                usernameBuffer,
+                usernameSize,
+                domainBuffer,
+                domainSize,
+                passwordBuffer,
+                passwordSize
+            )
+
+            return if (success) {
+                // Convert char arrays to strings and create NetworkCredential
+                NetworkCredential(
+                    userName = usernameBuffer.copyOf(usernameSize.value).concatToString(),
+                    password = passwordBuffer.copyOf(passwordSize.value).concatToString(),
+                    domain = domainBuffer.copyOf(domainSize.value).concatToString()
+                )
+            } else {
+                null
+            }
         }
     }
 }

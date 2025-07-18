@@ -36,6 +36,7 @@ kotlin {
             implementation(libs.ktor.serialization.json)
             implementation(libs.ktor.client.engine)
             implementation(libs.compose.data.table)
+            implementation(libs.kotlinx.serialization)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -56,6 +56,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.seanproctor.datatable.DataColumn
 import com.seanproctor.datatable.DataTableState
@@ -185,7 +186,7 @@ fun MainScreen(
                                             servers.sortedByDescending { it.ipAddress }
                                         }
                                     }
-                                    else -> servers
+                                    else -> servers.sortedBy { it.displayOrder }
                                 }
                             }
 
@@ -195,6 +196,11 @@ fun MainScreen(
                                 mutableStateListOf<VirtualMachine>().also { it.addAll(sortedServers) }
                             }
                             val density = LocalDensity.current
+
+                            if (draggedIndex.value != null) {
+                                // Save the order when drag completes
+                                viewModel.updateServerOrder(orderableServers.toList())
+                            }
 
                             DataTable(
                                 columns = listOf(
@@ -235,13 +241,14 @@ fun MainScreen(
                                     },
                                 ),
                                 modifier = Modifier.fillMaxWidth(),
-                                rowHeight = 36.dp,
+                                rowHeight = 42.dp,
                                 sortColumnIndex = sortColumnIndex,
                                 state = scrollState,
                                 separator = {  },
                                 contentPadding = PaddingValues(8.dp),
                                 sortAscending = sortAscending
                             ) {
+
                                 for ((index, server) in orderableServers.withIndex()) {
                                     row {
                                         onClick = { selectedServer.value = server }
@@ -265,6 +272,8 @@ fun MainScreen(
                                                                 draggedIndex.value = index
                                                             },
                                                             onDragEnd = {
+                                                                // Save the updated order
+                                                                viewModel.updateServerOrder(orderableServers.toList())
                                                                 draggedIndex.value = null
                                                             },
                                                             onDragCancel = {
@@ -313,7 +322,14 @@ fun MainScreen(
                                         }
 
                                         cell { Text(text = server.hostName) }
-                                        cell { Text(text = server.description) }
+                                        cell {
+                                            Text(
+                                                text = server.description,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis,
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
+                                        }
                                         cell { Text(text = server.ipAddress) }
                                     }
                                 }
@@ -436,7 +452,16 @@ fun MainScreen(
                                 )
                                 OutlinedTextField(
                                     value = editableDescription.value,
-                                    onValueChange = { editableDescription.value = it },
+                                    onValueChange = {
+                                        editableDescription.value = it
+
+                                        viewModel.updateServerAndSave(
+                                            server.copy(
+                                                description = editableDescription.value,
+                                                url = editableUrl.value
+                                            )
+                                        )
+                                    },
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = OutlinedTextFieldDefaults.colors(
                                         focusedTextColor = Color.Black,
@@ -457,7 +482,16 @@ fun MainScreen(
                                 )
                                 OutlinedTextField(
                                     value = editableUrl.value,
-                                    onValueChange = { editableUrl.value = it },
+                                    onValueChange = {
+                                        editableUrl.value = it
+
+                                        viewModel.updateServerAndSave(
+                                            server.copy(
+                                                description = editableDescription.value,
+                                                url = editableUrl.value
+                                            )
+                                        )
+                                    },
                                     modifier = Modifier.fillMaxWidth(),
                                     supportingText = {
                                         Text(
@@ -485,7 +519,7 @@ fun MainScreen(
                                     Button(
                                         onClick = {
                                             // Connect to server
-                                            //viewModel.connectToServer(server)
+                                            viewModel.connect()
                                         },
                                         modifier = Modifier.weight(1f)
                                     ) {
@@ -494,13 +528,12 @@ fun MainScreen(
 
                                     Button(
                                         onClick = {
-                                            // Save changes to description and URL
-//                                            viewModel.updateServer(
-//                                                server.copy(
-//                                                    description = editableDescription.value,
-//                                                    url = editableUrl.value
-//                                                )
-//                                            )
+                                            viewModel.updateServerAndSave(
+                                                server.copy(
+                                                    description = editableDescription.value,
+                                                    url = editableUrl.value
+                                                )
+                                            )
                                         },
                                         modifier = Modifier.weight(1f)
                                     ) {
@@ -544,25 +577,5 @@ fun MainScreen(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun ServerListItem(
-    name: String,
-    modifier: Modifier
-) {
-
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-    ) {
-        Text(
-            modifier = Modifier,
-            text = name,
-            fontSize = Typography.bodyLarge.fontSize,
-            fontStyle = FontStyle.Italic
-        )
     }
 }

@@ -29,6 +29,7 @@ ktor-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation",
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-gson", version.ref = "ktor" }
 ktor-client-engine = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 compose-data-table = { module = "com.seanproctor:data-table-material3", version = "0.11.4" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.9.0" }
 
 [plugins]
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }

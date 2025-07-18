@@ -11,13 +11,13 @@ data class MachineDetails(
     @SerializedName("full_name")
     val fullName: MachineFullName,
     @SerializedName("name")
-    val name: String,
+    val name: String?,
     @SerializedName("ip_address")
-    val ipAddress: String,
+    val ipAddress: String?,
     @SerializedName("family")
-    val family: String,
+    val family: String?,
     @SerializedName("host_name")
-    val hostName: String
+    val hostName: String?
 )
 
 data class MachineFullName(
